@@ -5,6 +5,7 @@
 */5 7-20 * * 1-5 export DISPLAY=:0; /usr/bin/python /home/john/git/john/minas/scripts/chat_logs.py >> /var/log/john/chat_logger.log 2>&1
 '''
 
+
 import pyautogui
 import pyperclip
 import difflib
@@ -28,7 +29,7 @@ from functools import partial
 
 
 home = expanduser("~")
-chat_home_dir = "{}/git/john/minas/chat_logs".format(home)
+chat_home_dir = f"{home}/git/john/minas/chat_logs"
 chatlog_cmd = partial(subprocess.check_output, cwd=chat_home_dir, shell=True)
 
 MIN_IDLE = 20 * 1000 # (10 seconds)
@@ -67,9 +68,7 @@ def commit_chat_logs():
 				print(res)
 
 		else:
-			print("Not committing yet. {} "
-				  "minutes since last commit." \
-				  .format(last_commit_min))
+			print(f"Not committing yet. {last_commit_min} minutes since last commit.")
 
 
 def get_chat_logs():
@@ -82,7 +81,7 @@ def get_chat_logs():
 		active_window = screen.get_active_window()
 		for w in windows:
 			for room in rooms:
-				titlePattern = re.compile('.*{}.*'.format(room))
+				titlePattern = re.compile(f'.*{room}.*')
 				if titlePattern.match(w.get_name()):
 					room_windows[room] = w
 
@@ -124,8 +123,8 @@ def get_chat_logs():
 			diff = difflib.ndiff(old_data.split('\n'), data.split('\n'))
 			changes = [l[2:] for l in diff if l.startswith('+ ') or l.startswith('- ')]
 			changes = [x for x in changes if x != '']
-			print("{} new lines".format(len(changes)))
-			if len(changes) > 0:
+			print(f"{len(changes)} new lines")
+			if changes:
 				data = '\n'.join(changes)
 			else:
 				continue
@@ -140,10 +139,10 @@ def get_chat_logs():
 		cmd = "awk '!seen[$0]++ == 1' '{f}' > '{f}.tmp' && mv '{f}.tmp' '{f}' ".format(f=chat_log)
 		print(cmd)
 		out = subprocess.check_output(
-	           [cmd],
-				cwd=chat_home_dir,
-				shell=True
-				)
+		[cmd],
+		cwd=chat_home_dir,
+		shell=True
+		)
 		print(out)
 		sleep(1)
 
@@ -164,8 +163,7 @@ def get_chat_logs_on_idle():
 			get_chat_logs()
 			return 1
 		else:
-			print("Idle at {}. Waiting for greater than {}".format(
-				idle, MIN_IDLE))
+			print(f"Idle at {idle}. Waiting for greater than {MIN_IDLE}")
 		sleep(3)
 
 	print("Computer is not idle. Not running for now.")
